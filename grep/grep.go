@@ -39,30 +39,33 @@ func LineByLine(path string, re *regexp.Regexp) (chan string, error) {
 		return nil, err
 	}
 
-	matchChan := make(chan string)
+	matches := make(chan string)
 	go func() {
+		defer close(matches)
+
 		for line := range lineChan {
 			if re.MatchString(line) {
-				matchChan <- line
+				matches <- line
 			}
 		}
 	}()
 
-	return matchChan, nil
+	return matches, nil
 }
 
 func FileLineByLine(r io.Reader, re *regexp.Regexp) chan string {
-	lineChan := fileutil.ReadFileLineByLine(r)
-	matchChan := make(chan string)
+	lines := fileutil.ReadFileLineByLine(r)
+	matches := make(chan string)
 	go func() {
-		for line := range lineChan {
+		defer close(matches)
+		for line := range lines {
 			if re.MatchString(line) {
-				matchChan <- line
+				matches <- line
 			}
 		}
 	}()
 
-	return matchChan
+	return matches
 }
 
 // Matches returns maximum n number of matches from the file.
