@@ -156,6 +156,10 @@ func WriteLines(path string, lines []string) error {
 	return WriteFileLines(file, lines)
 }
 
+func WriteString(path string, content string) error {
+	return os.WriteFile(path, []byte(content), DefaultFilePerms)
+}
+
 func CopyFile(src string, dest string) error {
 	if IsSameFile(src, dest) {
 		return errors.New("source and destination are the same file")
