@@ -8,6 +8,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	cp "github.com/otiai10/copy"
 )
 
 const (
@@ -202,4 +204,24 @@ func CopyFile(src string, dest string) error {
 	}
 
 	return nil
+}
+
+func CopyDir(src string, dest string) error {
+	if !DirExists(src) {
+		return errors.New("source path doesn't exist or isn't a directory")
+	}
+
+	if IsSameFile(src, dest) {
+		return errors.New("source and destination are the same file")
+	}
+
+	if DirExists(dest) {
+		dest = filepath.Join(dest, filepath.Base(src))
+	} else if FileExists(dest) {
+		return errors.New("destination is a file")
+	}
+
+	return cp.Copy(src, dest, cp.Options{
+		PreserveOwner: true,
+	})
 }
